@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Blood Group Detection</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f2f2f2;
+            padding: 50px;
+        }
+        .card {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+            display: inline-block;
+        }
+        img {
+            margin-top: 20px;
+            max-width: 300px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+        button {
+            padding: 12px 24px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .status, .prediction {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Blood Group Detection</h1>
+        <button id="captureBtn">Capture Fingerprint</button>
+
+        <div class="status" id="status">Status: Idle</div>
+        <div id="fingerprintImage"></div>
+        <div class="prediction" id="prediction"></div>
+    </div>
+
+    <script>
+        document.getElementById("captureBtn").addEventListener("click", () => {
+            document.getElementById("status").innerText = "Capturing fingerprint...";
+            document.getElementById("prediction").innerText = "";
+            document.getElementById("fingerprintImage").innerHTML = "";
+
+            fetch("/predict")
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById("status").innerText = data.status;
+                    if (data.prediction) {
+                        document.getElementById("prediction").innerText = "Predicted Blood Group: " + data.prediction;
+                    }
+
+                    if (data.image_data) {
+                        const img = document.createElement("img");
+                        img.src = data.image_data;
+                        img.alt = "Fingerprint Image";
+                        document.getElementById("fingerprintImage").appendChild(img);
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    document.getElementById("status").innerText = "Failed to capture.";
+                });
+        });
+    </script>
+</body>
+</html>
